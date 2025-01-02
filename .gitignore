@@ -39,3 +39,4 @@ build/
 
 # .gitignore
 config.properties
+application.properties

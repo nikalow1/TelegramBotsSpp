@@ -10,12 +10,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class WebScraper {
-    public static String fetchRegNumData(String regNum) {
+    public static String fetchRegNumData(String regNum, String zone) {
         StringBuilder result = new StringBuilder();
         try {
-            Document doc = Jsoup.connect("https://mon.declarant.by/zone/kozlovichi").get();
+            Document doc = Jsoup.connect("https://mon.declarant.by/zone/" + zone.toLowerCase()).get();
             Elements rows = doc.select("tr.cdk-row");
-            System.out.println(doc);
             boolean found = false;
             for (Element row : rows) {
                 String currentRegNum = row.select("td.cdk-column-regnum").text();
@@ -57,7 +56,7 @@ public class WebScraper {
         Elements stats = doc.select(".zone-statistics-wrapper p span.font-bold");
         double last24Hours = 0;
         if (stats.size() >= 2) {
-            last24Hours = Integer.parseInt(stats.get(1).text()); // Значение за последние 24 часа
+            last24Hours = Integer.parseInt(stats.get(1).text());
         } else {
             System.out.println("Не удалось найти нужные значения.");
         }

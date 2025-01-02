@@ -1,34 +1,40 @@
 package org.example;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+@SpringBootApplication
+@EnableScheduling
+public class Main implements CommandLineRunner {
 
-public class Main {
+    private final Bot bot;
+
+    public Main(Bot bot) {
+        this.bot = bot;
+    }
 
     public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
+    }
+
+    @Override
+    public void run(String... args) {
         try {
-            Config config = new Config();
-            String botToken = config.getBotToken();
-
             TelegramBotsApi tba = new TelegramBotsApi(DefaultBotSession.class);
-            Bot bot = new Bot(botToken);
             tba.registerBot(bot);
-
-            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-            Runnable task = () -> {
-                bot.auto();
-            };
-
-            scheduler.scheduleAtFixedRate(task, 0, 60, TimeUnit.MINUTES);
-
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+
+    @Scheduled(fixedRate = 3600000)
+    public void scheduleAutoTask() {
+        bot.auto();
     }
 }
